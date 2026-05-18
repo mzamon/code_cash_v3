@@ -152,33 +152,66 @@ class AddTransactionActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Save transaction to DataStore and check achievements.
+     * Includes error handling for invalid inputs.
+     */
     private fun saveTransaction() {
-        val amount = binding.etAmount.text.toString().toDoubleOrNull()
-        val description = binding.etDescription.text.toString().trim()
+        Log.d("AddTransaction", "saveTransaction: Validating and saving transaction")
+        
+        try {
+            val amount = binding.etAmount.text.toString().toDoubleOrNull()
+            val description = binding.etDescription.text.toString().trim()
 
-        if (amount == null) {
-            binding.tilAmount.error = "Enter a valid amount"
-            return
+            // Validate amount
+            if (amount == null || amount <= 0) {
+                Log.w("AddTransaction", "Invalid amount: $amount")
+                binding.tilAmount.error = "Enter a valid amount greater than 0"
+                return
+            }
+            binding.tilAmount.error = null
+            
+            // Validate description
+            if (description.isEmpty()) {
+                Log.w("AddTransaction", "Description is empty")
+                binding.tilDescription.error = "Description is required"
+                return
+            }
+            binding.tilDescription.error = null
+            
+            // Validate category selection
+            if (selectedCategoryId == -1) {
+                Log.w("AddTransaction", "No category selected")
+                Toast.makeText(this, "Please select a category", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            Log.d("AddTransaction", "Validation passed - Amount: $amount, Category: $selectedCategoryId, Photo: $currentPhotoPath")
+
+            // Add to global DataStore parallel arrays
+            val transactionId = DataStore.addTransaction(
+                userId = DataStore.currentUserId,
+                amount = amount,
+                description = description,
+                categoryId = selectedCategoryId,
+                date = selectedDateMillis,
+                startTime = startTimeMillis,
+                endTime = endTimeMillis,
+                photoPath = currentPhotoPath,
+                isIncome = false
+            )
+            
+            Log.i("AddTransaction", "Transaction saved successfully - ID: $transactionId")
+
+            // Check for achievement conditions
+            Log.d("AddTransaction", "Checking achievement conditions")
+            DataStore.checkAndUnlockAchievements(DataStore.currentUserId)
+
+            Toast.makeText(this, "Transaction added!", Toast.LENGTH_SHORT).show()
+            finish()
+        } catch (e: Exception) {
+            Log.e("AddTransaction", "Error saving transaction: ${e.message}", e)
+            Toast.makeText(this, "Error saving transaction: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-        if (description.isEmpty()) {
-            binding.tilDescription.error = "Description is required"
-            return
-        }
-
-        // Add to global DataStore parallel arrays
-        DataStore.addTransaction(
-            userId = DataStore.currentUserId,
-            amount = amount,
-            description = description,
-            categoryId = selectedCategoryId,
-            date = selectedDateMillis,
-            startTime = startTimeMillis,
-            endTime = endTimeMillis,
-            photoPath = currentPhotoPath,
-            isIncome = false
-        )
-
-        Toast.makeText(this, "Transaction added!", Toast.LENGTH_SHORT).show()
-        finish()
     }
 }

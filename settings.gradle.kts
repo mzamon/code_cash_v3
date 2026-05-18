@@ -15,5 +15,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "code_cash_v2"
+rootProject.name = "code_cash_v3"
 include(":app")

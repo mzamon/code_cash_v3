@@ -46,11 +46,20 @@ object DataStore {
     val budgetGoalMaxAmounts = ArrayList<Double>()
     val budgetGoalMonthYears = ArrayList<String>()
 
+    // Parallel arrays for Achievements/Gamification (Part 3)
+    val achievementIds = ArrayList<Int>()
+    val achievementUserIds = ArrayList<Int>()
+    val achievementTitles = ArrayList<String>()
+    val achievementDescriptions = ArrayList<String>()
+    val achievementUnlockedDates = ArrayList<Long>()
+    val achievementCategories = ArrayList<String>() // "budget", "consistency", "milestone"
+
     // Auto-increment IDs
     private var nextUserId = 1
     private var nextCategoryId = 1
     private var nextTransactionId = 1
     private var nextBudgetGoalId = 1
+    private var nextAchievementId = 1
     
     init {
         initializeTestData()
@@ -59,11 +68,13 @@ object DataStore {
     private fun initializeTestData() {
         Log.d(TAG, "Initializing test data...")
         
-        // 1. Seed Users (Group members)
-        addUser("Tshiamo Keefelakae Lentswe", "st10448558@codecash.com", "st10448558")
-        addUser("Yinhla Maringa", "st10441743@codecash.com", "st10441743")
-        addUser("Matshidiso Nthebe", "st10449727@codecash.com", "st10449727")
-        addUser("Mzamo Richmond Ndlovu", "st10455453@codecash.com", "st10455453")
+        // 1. Seed Users (Group members + Admin)
+        // Admin account for testing: admin@codecash.com / Password123
+        addUser("Admin", "admin@codecash.com", "Password123")
+        addUser("Tshiamo Keefelakae Lentswe", "st10448558@codecash.com", "St10448558")
+        addUser("Yinhla Maringa", "st10441743@codecash.com", "St10441743")
+        addUser("Matshidiso Nthebe", "st10449727@codecash.com", "St10449727")
+        addUser("Mzamo Richmond Ndlovu", "st10455453@codecash.com", "St10455453")
 
         // 2. Seed Default Categories
         addCategory("Food & Dining", "#22c55e")
@@ -73,19 +84,8 @@ object DataStore {
         addCategory("Utilities", "#ef4444")
         addCategory("Shopping", "#ec4899")
 
-        // 3. Seed Transactions
-        val calendar = Calendar.getInstance()
-        val now = calendar.timeInMillis
-        
-        // Sample transactions for Tshiamo (User 1)
-        addTransaction(1, 79.99, "Starbucks Coffee", 1, now, now, now + 1800000, null, false)
-        addTransaction(1, 7895.00, "Monthly Rent", 3, now - 86400000, now, now, null, false)
-        addTransaction(1, 32900.00, "Monthly Salary", 1, now - 172800000, now, now, null, true)
-        
-        // Set some initial budget goals for User 1
-        val currentMonth = getCurrentMonthYear()
-        addBudgetGoal(1, 0, 10000.0, 25000.0, currentMonth) // Overall
-        addBudgetGoal(1, 1, 500.0, 2000.0, currentMonth)   // Food
+        // 3. Seed Transactions (Removed - new users start with 0% progress)
+        // Users can add their own transactions when they start using the app
         
         Log.d(TAG, "Test data initialized.")
     }
@@ -346,7 +346,144 @@ object DataStore {
             val end = calendar.timeInMillis
             Pair(start, end)
         } catch (e: Exception) {
+            Log.e(TAG, "Error parsing month year: $monthYear", e)
             Pair(0L, Long.MAX_VALUE)
+        }
+    }
+
+    // ==================== GAMIFICATION / ACHIEVEMENTS (Part 3) ====================
+
+    /**
+     * Add achievement/badge when user meets budget goals or logs consistently.
+     * Requirements: Part 3 - Gamification elements for rewards and badges
+     */
+    fun addAchievement(
+        userId: Int,
+        title: String,
+        description: String,
+        category: String,
+        unlockedDate: Long = System.currentTimeMillis()
+    ): Int {
+        val id = nextAchievementId++
+        achievementIds.add(id)
+        achievementUserIds.add(userId)
+        achievementTitles.add(title)
+        achievementDescriptions.add(description)
+        achievementUnlockedDates.add(unlockedDate)
+        achievementCategories.add(category)
+        Log.d(TAG, "Achievement unlocked for user $userId: $title")
+        return id
+    }
+
+    /**
+     * Get all achievements for a user.
+     */
+    fun getUserAchievements(userId: Int): List<Int> {
+        val result = ArrayList<Int>()
+        for (i in achievementUserIds.indices) {
+            if (achievementUserIds[i] == userId) {
+                result.add(achievementIds[i])
+            }
+        }
+        return result
+    }
+
+    /**
+     * Check if user has specific achievement.
+     */
+    fun hasAchievement(userId: Int, title: String): Boolean {
+        for (i in achievementUserIds.indices) {
+            if (achievementUserIds[i] == userId && achievementTitles[i] == title) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Auto-check budget goals and unlock achievements if conditions met.
+     * Called after each transaction to verify gamification conditions.
+     */
+    fun checkAndUnlockAchievements(userId: Int) {
+        val currentMonth = getCurrentMonthYear()
+        val (start, end) = getMonthStartEnd(currentMonth)
+        
+        Log.d(TAG, "Checking achievements for user $userId in period $currentMonth")
+
+        // Achievement 1: Budget Master - Stay within all budget goals
+        var allGoalsMet = true
+        for (i in budgetGoalUserIds.indices) {
+            if (budgetGoalUserIds[i] == userId && budgetGoalMonthYears[i] == currentMonth) {
+                val categoryId = budgetGoalCategoryIds[i]
+                val categorySpent = getCategoryTotal(userId, categoryId, start, end)
+                val maxBudget = budgetGoalMaxAmounts[i]
+                
+                if (categorySpent > maxBudget) {
+                    allGoalsMet = false
+                    break
+                }
+            }
+        }
+        
+        if (allGoalsMet && !hasAchievement(userId, "Budget Master")) {
+            addAchievement(
+                userId,
+                "Budget Master",
+                "Stayed within all budget goals for the month!",
+                "budget"
+            )
+        }
+
+        // Achievement 2: Consistent Logger - 10+ transactions in a month
+        val monthTransactions = getTransactionsForPeriod(userId, start, end)
+        if (monthTransactions.size >= 10 && !hasAchievement(userId, "Consistent Logger")) {
+            addAchievement(
+                userId,
+                "Consistent Logger",
+                "Logged 10+ transactions this month!",
+                "consistency"
+            )
+        }
+
+        // Achievement 3: Saver - Saved 500R+ in a month (income - expenses)
+        val income = getIncomeTotal(userId, start, end)
+        val expenses = getExpenseTotal(userId, start, end)
+        if ((income - expenses) >= 500 && !hasAchievement(userId, "Saver")) {
+            addAchievement(
+                userId,
+                "Saver",
+                "Saved R500+ this month!",
+                "milestone"
+            )
+        }
+
+        // Achievement 4: Milestone - 50+ total transactions all time
+        val allTransactions = getTransactionsForUser(userId)
+        if (allTransactions.size >= 50 && !hasAchievement(userId, "Transaction Milestone")) {
+            addAchievement(
+                userId,
+                "Transaction Milestone",
+                "Logged 50+ transactions! Great financial tracking!",
+                "milestone"
+            )
+        }
+    }
+
+    /**
+     * Get progress percentage for a category against its max budget for current month.
+     * Used for UI progress indicators in Part 3.
+     */
+    fun getBudgetProgress(userId: Int, categoryId: Int): Pair<Double, Double> {
+        val currentMonth = getCurrentMonthYear()
+        val (start, end) = getMonthStartEnd(currentMonth)
+        
+        val budgetGoal = getBudgetGoal(userId, categoryId, currentMonth)
+        val spent = getCategoryTotal(userId, categoryId, start, end)
+        
+        return if (budgetGoal != null) {
+            Pair(spent, budgetGoal.maxAmount)
+        } else {
+            Pair(spent, spent) // No budget goal set, so 100% progress
         }
     }
 }

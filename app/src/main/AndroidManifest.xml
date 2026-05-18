@@ -22,8 +22,7 @@
         android:theme="@style/Theme.CodeCash"
         tools:targetApi="35">
 
-        <activity
-            android:name=".SplashActivity"
+        <activity android:name=".SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.CodeCash.Splash">
             <intent-filter>
@@ -40,6 +39,7 @@
         <activity android:name=".CategoryActivity" android:exported="false" />
         <activity android:name=".BudgetGoalsActivity" android:exported="false" />
         <activity android:name=".StatsActivity" android:exported="false" />
+        <activity android:name=".AchievementsActivity" android:exported="false" />
         <activity android:name=".PhotoViewActivity" android:exported="false" />
 
         <provider

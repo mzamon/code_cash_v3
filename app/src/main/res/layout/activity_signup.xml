@@ -83,6 +83,16 @@
             android:textColor="@color/white" />
     </com.google.android.material.textfield.TextInputLayout>
 
+    <TextView
+        android:id="@+id/tvPasswordHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Password: min 8 chars, 1 Capital, 1 Special (!@#$%)"
+        android:textColor="@color/gray_light"
+        android:textSize="11sp"
+        app:layout_constraintTop_toBottomOf="@id/tilPassword" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilConfirmPassword"
         style="@style/CodeCashTextInput"
@@ -91,7 +101,7 @@
         android:layout_marginTop="16dp"
         android:hint="@string/confirm_password"
         app:endIconMode="password_toggle"
-        app:layout_constraintTop_toBottomOf="@id/tilPassword">
+        app:layout_constraintTop_toBottomOf="@id/tvPasswordHint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etConfirmPassword"
