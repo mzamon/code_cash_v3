@@ -62,20 +62,25 @@ class AddTransactionActivity : AppCompatActivity() {
         // Toolbar with back navigation
         binding.toolbar.setNavigationOnClickListener { finish() }
 
-        // Setup Income/Expense Radio Buttons
-        binding.rbExpense.isChecked = true
-        isIncome = false
-        binding.rbExpense.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                isIncome = false
-                Log.d("AddTransaction", "Transaction type: EXPENSE")
+        // Setup Income/Expense Radio Buttons (guarded in case layout missing)
+        try {
+            binding.rbExpense.isChecked = true
+            isIncome = false
+            binding.rbExpense.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    isIncome = false
+                    Log.d("AddTransaction", "Transaction type: EXPENSE")
+                }
             }
-        }
-        binding.rbIncome.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                isIncome = true
-                Log.d("AddTransaction", "Transaction type: INCOME")
+            binding.rbIncome.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    isIncome = true
+                    Log.d("AddTransaction", "Transaction type: INCOME")
+                }
             }
+        } catch (e: Exception) {
+            Log.w("AddTransaction", "Radio buttons not available in layout: ${e.message}")
+            isIncome = false
         }
 
         // Setup Date Picker
