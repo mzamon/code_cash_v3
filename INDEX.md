@@ -1,4 +1,4 @@
-# CodeCash v2 - Complete Project Index
+# CodeCash v3 - Complete Project Index
 
 ## 📋 Documentation Guide
 
@@ -9,10 +9,10 @@ This index helps navigate all documentation and implementation details for the C
 ## 📁 Project Structure
 
 ### Application Files
-Located in: `app/code_cash_v2/`
+Located in: `app/code_cash_v3/`
 
 ```
-app/code_cash_v2/
+app/code_cash_v3/
 ├── app/
 │   ├── src/
 │   │   ├── main/
@@ -225,7 +225,7 @@ OPSC/  (Documentation)
 ```bash
 # Clone repository
 git clone <url>
-cd app/code_cash_v2
+cd app/code_cash_v3
 
 # Build project
 ./gradlew build

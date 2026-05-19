@@ -11,7 +11,7 @@
 
 ### Step 1: Directory Rename ✅
 ```
-OLD: app/code_cash_v2/
+OLD: app/code_cash_v3/
 NEW: app/code_cash_v3/
 STATUS: Complete
 ```
