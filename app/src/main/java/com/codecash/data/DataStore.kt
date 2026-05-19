@@ -1,7 +1,13 @@
 package com.codecash.data
 
-import android.util.Log
 import java.util.*
+
+// Lightweight logging helpers to keep DataStore usable in JVM unit tests
+private fun logD(msg: String) = println("D/DataStore: $msg")
+private fun logW(msg: String) = println("W/DataStore: $msg")
+private fun logE(msg: String, e: Throwable? = null) {
+    println("E/DataStore: $msg${e?.let { " - ${it.message}" } ?: ""}")
+}
 
 /**
  * Global data store using parallel-style lists to persist data during the app session.
@@ -66,7 +72,7 @@ object DataStore {
     }
 
     private fun initializeTestData() {
-        Log.d(TAG, "Initializing test data...")
+        logD("Initializing test data...")
         
         // 1. Seed Users (Group members + Admin)
         // Admin account for testing: admin@codecash.com / Password123
@@ -87,7 +93,7 @@ object DataStore {
         // 3. Seed Transactions (Removed - new users start with 0% progress)
         // Users can add their own transactions when they start using the app
         
-        Log.d(TAG, "Test data initialized.")
+        logD("Test data initialized.")
     }
 
     // ==================== USER OPERATIONS ====================
@@ -345,7 +351,7 @@ object DataStore {
             
             String.format("%02d-%d", lastMonth, lastYear)
         } catch (e: Exception) {
-            Log.e(TAG, "Error calculating last month year: $currentMonthYear", e)
+            logE("Error calculating last month year: $currentMonthYear", e)
             currentMonthYear
         }
     }
@@ -362,7 +368,7 @@ object DataStore {
             val end = calendar.timeInMillis
             Pair(start, end)
         } catch (e: Exception) {
-            Log.e(TAG, "Error parsing month year: $monthYear", e)
+            logE("Error parsing month year: $monthYear", e)
             Pair(0L, Long.MAX_VALUE)
         }
     }
@@ -387,7 +393,7 @@ object DataStore {
         achievementDescriptions.add(description)
         achievementUnlockedDates.add(unlockedDate)
         achievementCategories.add(category)
-        Log.d(TAG, "Achievement unlocked for user $userId: $title")
+        logD("Achievement unlocked for user $userId: $title")
         return id
     }
 
@@ -424,7 +430,7 @@ object DataStore {
         val currentMonth = getCurrentMonthYear()
         val (start, end) = getMonthStartEnd(currentMonth)
         
-        Log.d(TAG, "Checking achievements for user $userId in period $currentMonth")
+        logD("Checking achievements for user $userId in period $currentMonth")
 
         // Achievement 1: Budget Master - Stay within all budget goals
         var allGoalsMet = true

@@ -44,9 +44,17 @@ class AddTransactionActivity : AppCompatActivity() {
         if (result.resultCode == RESULT_OK) {
             binding.ivPhotoPreview.visibility = View.VISIBLE
             binding.ivCameraIcon.visibility = View.GONE
-            binding.ivPhotoPreview.setImageURI(photoUri)
-            Toast.makeText(this, "Photo attached successfully", Toast.LENGTH_SHORT).show()
-            Log.d("AddTransaction", "Photo captured and stored at: $currentPhotoPath")
+            try {
+                binding.ivPhotoPreview.setImageURI(photoUri)
+                Toast.makeText(this, "Photo attached successfully", Toast.LENGTH_SHORT).show()
+                android.util.Log.d("AddTransaction", "Photo captured and stored at: $currentPhotoPath")
+            } catch (se: SecurityException) {
+                Toast.makeText(this, "Unable to access captured photo (permission denied)", Toast.LENGTH_LONG).show()
+                android.util.Log.e("AddTransaction", "SecurityException setting image URI", se)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Error attaching photo", Toast.LENGTH_SHORT).show()
+                android.util.Log.e("AddTransaction", "Error setting image URI", e)
+            }
         }
     }
 
@@ -170,6 +178,7 @@ class AddTransactionActivity : AppCompatActivity() {
             photoUri = FileProvider.getUriForFile(this, "${packageName}.fileprovider", it)
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
                 putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             takePhotoLauncher.launch(intent)
         }

@@ -32,7 +32,26 @@ object ImageUtils {
     
     fun loadPhoto(path: String): Bitmap? {
         return try {
-            BitmapFactory.decodeFile(path)
+            // Load scaled bitmap to avoid OOM for large camera images.
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(path, options)
+
+            // Target dimensions - keep reasonably large but safe
+            val targetW = 1080
+            val targetH = 1920
+
+            var inSampleSize = 1
+            val (height: Int, width: Int) = options.outHeight to options.outWidth
+            if (height > targetH || width > targetW) {
+                val halfHeight = height / 2
+                val halfWidth = width / 2
+                while ((halfHeight / inSampleSize) >= targetH && (halfWidth / inSampleSize) >= targetW) {
+                    inSampleSize *= 2
+                }
+            }
+
+            val decodeOptions = BitmapFactory.Options().apply { this.inSampleSize = inSampleSize }
+            BitmapFactory.decodeFile(path, decodeOptions)
         } catch (e: Exception) {
             null
         }
