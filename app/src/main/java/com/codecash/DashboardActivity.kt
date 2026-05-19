@@ -112,6 +112,26 @@ class DashboardActivity : AppCompatActivity() {
             binding.tvBalance.text = "R${String.format("%.2f", balance)}"
             binding.tvIncome.text = "R${String.format("%.2f", income)}"
             binding.tvExpenses.text = "R${String.format("%.2f", expenses)}"
+            
+            // Calculate balance change from last month (dynamic, not hardcoded)
+            val lastMonth = DataStore.getLastMonthYear(currentMonth)
+            val (lastStart, lastEnd) = DataStore.getMonthStartEnd(lastMonth)
+            val lastMonthIncome = DataStore.getIncomeTotal(userId, lastStart, lastEnd)
+            val lastMonthExpenses = DataStore.getExpenseTotal(userId, lastStart, lastEnd)
+            val lastMonthBalance = lastMonthIncome - lastMonthExpenses
+            
+            val changePercent = if (lastMonthBalance != 0.0) {
+                ((balance - lastMonthBalance) / lastMonthBalance) * 100
+            } else {
+                0.0
+            }
+            
+            val changeText = when {
+                changePercent > 0 -> "+${String.format("%.1f", changePercent)}% from last month"
+                changePercent < 0 -> "${String.format("%.1f", changePercent)}% from last month"
+                else -> "No change from last month"
+            }
+            binding.tvBalanceChange.text = changeText
 
             // Load recent transactions (sorted by date newest first via DataStore logic)
             val allTransactionIds = DataStore.getTransactionsForPeriod(userId, 0, Long.MAX_VALUE)

@@ -334,6 +334,22 @@ object DataStore {
         return sdf.format(Date())
     }
 
+    fun getLastMonthYear(currentMonthYear: String): String {
+        return try {
+            val parts = currentMonthYear.split("-")
+            val month = parts[0].toInt()
+            val year = parts[1].toInt()
+            
+            val lastMonth = if (month == 1) 12 else month - 1
+            val lastYear = if (month == 1) year - 1 else year
+            
+            String.format("%02d-%d", lastMonth, lastYear)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error calculating last month year: $currentMonthYear", e)
+            currentMonthYear
+        }
+    }
+
     fun getMonthStartEnd(monthYear: String): Pair<Long, Long> {
         return try {
             val parts = monthYear.split("-")

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -36,6 +37,7 @@ class AddTransactionActivity : AppCompatActivity() {
     private var endTimeMillis: Long = System.currentTimeMillis() + 3600000 // +1 hour default
     private var currentPhotoPath: String? = null
     private var photoUri: Uri? = null
+    private var isIncome: Boolean = false // Track whether this is income or expense
 
     // Register camera activity result for capturing receipt photos
     private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -59,6 +61,22 @@ class AddTransactionActivity : AppCompatActivity() {
     private fun setupUI() {
         // Toolbar with back navigation
         binding.toolbar.setNavigationOnClickListener { finish() }
+
+        // Setup Income/Expense Radio Buttons
+        binding.rbExpense.isChecked = true
+        isIncome = false
+        binding.rbExpense.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                isIncome = false
+                Log.d("AddTransaction", "Transaction type: EXPENSE")
+            }
+        }
+        binding.rbIncome.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                isIncome = true
+                Log.d("AddTransaction", "Transaction type: INCOME")
+            }
+        }
 
         // Setup Date Picker
         val dateSdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
@@ -198,7 +216,7 @@ class AddTransactionActivity : AppCompatActivity() {
                 startTime = startTimeMillis,
                 endTime = endTimeMillis,
                 photoPath = currentPhotoPath,
-                isIncome = false
+                isIncome = isIncome
             )
             
             Log.i("AddTransaction", "Transaction saved successfully - ID: $transactionId")

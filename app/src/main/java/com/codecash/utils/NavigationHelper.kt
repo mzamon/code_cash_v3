@@ -35,9 +35,8 @@ object NavigationHelper {
                 }
                 R.id.nav_forecast -> {
                     if (currentItemId != R.id.nav_forecast) {
-                        activity.startActivity(Intent(activity, StatsActivity::class.java).apply {
-                            putExtra("show_forecast", true)
-                        })
+                        // Forecast redirects to Stats (TODO: implement forecast features in future)
+                        activity.startActivity(Intent(activity, StatsActivity::class.java))
                         activity.finish()
                     }
                     true
