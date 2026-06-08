@@ -20,9 +20,9 @@
 
     <ImageView
         android:id="@+id/ivLogo"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:src="@mipmap/ic_launcher"
+        android:layout_width="77dp"
+        android:layout_height="77dp"
+        android:src="@drawable/logo_rounded"
         android:contentDescription="@string/app_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

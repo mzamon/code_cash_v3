@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import androidx.core.content.FileProvider
+import com.codecash.data.DataStore
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -13,9 +14,18 @@ import java.util.*
 
 object ImageUtils {
     
+    /**
+     * Save photo with format: {username}_{dd}_{MM}_{yyyy}_{hh}_{mm}_{ss}.jpg
+     * Example: Tshiamo_30_05_2026_11_45_30.jpg
+     * This ensures unique naming per user and timestamp, avoiding duplicates.
+     */
     fun savePhoto(context: Context, bitmap: Bitmap): String {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val fileName = "CODECASH_${timeStamp}.jpg"
+        // Get current user name
+        val userName = DataStore.getCurrentUserName().replace(" ", "_").replace("[^A-Za-z0-9_]".toRegex(), "")
+        
+        // Format: dd_MM_yyyy_HH_mm_ss
+        val timeStamp = SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.getDefault()).format(Date())
+        val fileName = "${userName}_${timeStamp}.jpg"
         
         val directory = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "CodeCash")
         if (!directory.exists()) {
@@ -24,7 +34,7 @@ object ImageUtils {
         
         val file = File(directory, fileName)
         FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, out)
         }
         
         return file.absolutePath
@@ -66,8 +76,9 @@ object ImageUtils {
     }
     
     fun createImageFile(context: Context): File {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val fileName = "JPEG_${timeStamp}_"
+        val userName = DataStore.getCurrentUserName().replace(" ", "_").replace("[^A-Za-z0-9_]".toRegex(), "")
+        val timeStamp = SimpleDateFormat("dd_MM_yyyy_HH_mm_ss", Locale.getDefault()).format(Date())
+        val fileName = "${userName}_${timeStamp}_"
         val directory = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "CodeCash")
         if (!directory.exists()) {
             directory.mkdirs()

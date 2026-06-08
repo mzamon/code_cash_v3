@@ -8,9 +8,9 @@
 
     <ImageView
         android:id="@+id/ivLogo"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        android:src="@drawable/logo_splash"
+        android:layout_width="216dp"
+        android:layout_height="216dp"
+        android:src="@drawable/logo_rounded"
         android:contentDescription="@string/app_name"
         app:layout_constraintBottom_toTopOf="@id/tvAppName"
         app:layout_constraintEnd_toEndOf="parent"
