@@ -78,6 +78,12 @@ class DashboardActivity : AppCompatActivity() {
                 Log.d(tag, "Add transaction button clicked")
                 startActivity(Intent(this, AddTransactionActivity::class.java))
             }
+
+            // Chatbot FAB
+            binding.fabChat.setOnClickListener {
+                Log.d(tag, "Chatbot FAB clicked")
+                startActivity(Intent(this, ChatbotActivity::class.java))
+            }
         } catch (e: Exception) {
             Log.e(tag, "Error setting up UI: ${e.message}", e)
             Toast.makeText(this, "Error setting up dashboard UI", Toast.LENGTH_SHORT).show()
@@ -157,9 +163,8 @@ class DashboardActivity : AppCompatActivity() {
             }
             binding.rvRecentTransactions.adapter = adapter
             
-            // Check and unlock achievements
-            Log.d(tag, "Checking for achievement conditions")
-            DataStore.checkAndUnlockAchievements(userId)
+            // Note: Achievement checks are performed when transactions are added, not on every dashboard load
+            // This prevents auto-granting badges and ensures earned achievements only
             
         } catch (e: Exception) {
             Log.e(tag, "Error updating dashboard data: ${e.message}", e)

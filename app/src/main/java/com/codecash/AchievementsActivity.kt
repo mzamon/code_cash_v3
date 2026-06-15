@@ -39,6 +39,7 @@ class AchievementsActivity : AppCompatActivity() {
             setContentView(binding.root)
 
             setupUI()
+            setupBottomNavigation()
             loadAchievements()
         } catch (e: Exception) {
             Log.e(tag, "Error during onCreate: ${e.message}", e)
@@ -61,6 +62,15 @@ class AchievementsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e(tag, "Error setting up UI: ${e.message}", e)
             Toast.makeText(this, "Error setting up achievements UI", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupBottomNavigation() {
+        Log.d(tag, "setupBottomNavigation: Configuring navigation")
+        try {
+            NavigationHelper.setupBottomNavigation(this, binding.bottomNav, R.id.nav_achievements)
+        } catch (e: Exception) {
+            Log.e(tag, "Error setting up bottom navigation: ${e.message}", e)
         }
     }
 

@@ -1,9 +1,13 @@
 package com.codecash.data
 
 import android.graphics.Color
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+@Entity(tableName = "categories")
 data class Category(
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val name: String,
     val colorHex: String = "#2dd4bf",
     val minBudget: Double = 0.0,

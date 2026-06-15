@@ -1,8 +1,10 @@
 package com.codecash
 
+import android.Manifest
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -12,6 +14,7 @@ import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.codecash.data.DataStore
 import com.codecash.databinding.ActivityAddTransactionBinding
@@ -45,8 +48,15 @@ class AddTransactionActivity : AppCompatActivity() {
             binding.ivPhotoPreview.visibility = View.VISIBLE
             binding.ivCameraIcon.visibility = View.GONE
             try {
-                binding.ivPhotoPreview.setImageURI(photoUri)
-                Toast.makeText(this, "Photo attached successfully", Toast.LENGTH_SHORT).show()
+                // Load photo safely with bitmap downsampling to avoid OOM
+                val bitmap = ImageUtils.loadPhoto(currentPhotoPath)
+                if (bitmap != null) {
+                    binding.ivPhotoPreview.setImageBitmap(bitmap)
+                    Toast.makeText(this, "Photo attached successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    binding.ivPhotoPreview.visibility = View.GONE
+                    Toast.makeText(this, "Photo saved but preview unavailable", Toast.LENGTH_SHORT).show()
+                }
                 android.util.Log.d("AddTransaction", "Photo captured and stored at: $currentPhotoPath")
             } catch (se: SecurityException) {
                 Toast.makeText(this, "Unable to access captured photo (permission denied)", Toast.LENGTH_LONG).show()
@@ -55,6 +65,17 @@ class AddTransactionActivity : AppCompatActivity() {
                 Toast.makeText(this, "Error attaching photo", Toast.LENGTH_SHORT).show()
                 android.util.Log.e("AddTransaction", "Error setting image URI", e)
             }
+        }
+    }
+
+    // Request runtime camera permission
+    private val requestCameraPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            dispatchTakePictureIntent()
+        } else {
+            Toast.makeText(this, "Camera permission is required to take photos", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -107,8 +128,14 @@ class AddTransactionActivity : AppCompatActivity() {
         // Populate Categories from DataStore parallel arrays
         populateCategories()
 
-        // Camera Integration
-        binding.btnTakePhoto.setOnClickListener { dispatchTakePictureIntent() }
+        // Camera Integration - with runtime permission check
+        binding.btnTakePhoto.setOnClickListener {
+            when {
+                ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_GRANTED -> dispatchTakePictureIntent()
+                else -> requestCameraPermission.launch(Manifest.permission.CAMERA)
+            }
+        }
 
         // Save Logic
         binding.btnSave.setOnClickListener { saveTransaction() }

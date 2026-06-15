@@ -1,5 +1,7 @@
 package com.codecash.data
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.*
 
 /**
@@ -10,8 +12,10 @@ import java.util.*
  * - Gamification design patterns: https://www.interaction-design.org/literature/articles/gamification
  * - Achievement systems in Android apps
  */
+@Entity(tableName = "achievements")
 data class Achievement(
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val userId: Int,
     val title: String,
     val description: String,

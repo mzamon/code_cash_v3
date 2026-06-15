@@ -1,30 +1,34 @@
 package com.codecash
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.codecash.data.DataStore
 import com.codecash.databinding.ActivityStatsBinding
 import com.codecash.utils.NavigationHelper
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
  * StatsActivity - Financial statistics and visualization.
- * 
+ *
  * Features:
  * - View category totals in user-selectable period (Part 2)
  * - Graphic format for data using MPAndroidChart (Part 2)
  * - Display achievements/badges (Part 3)
  * - Income vs expenses chart
  * - 6-month spending trend
- * 
+ *
  * References:
  * - MPAndroidChart: https://github.com/PhilJay/MPAndroidChart
  * - Android Material Design charts: https://material.io/design
@@ -71,19 +75,19 @@ class StatsActivity : AppCompatActivity() {
             binding.btnEndDate.text = sdf.format(Date(endDate))
 
             // Date Selectors
-            binding.btnStartDate.setOnClickListener { 
+            binding.btnStartDate.setOnClickListener {
                 Log.d(tag, "Start date picker clicked")
-                showDatePicker(true) 
+                showDatePicker(true)
             }
-            binding.btnEndDate.setOnClickListener { 
+            binding.btnEndDate.setOnClickListener {
                 Log.d(tag, "End date picker clicked")
-                showDatePicker(false) 
+                showDatePicker(false)
             }
 
             // Export Button
             binding.btnExport.setOnClickListener {
                 Log.d(tag, "Export button clicked")
-                Toast.makeText(this, "Detailed financial report exported", Toast.LENGTH_SHORT).show()
+                exportCsv()
             }
 
             // Setup Bottom Navigation
@@ -96,7 +100,7 @@ class StatsActivity : AppCompatActivity() {
 
     private fun showDatePicker(isStartDate: Boolean) {
         Log.d(tag, "showDatePicker: isStartDate=$isStartDate")
-        
+
         try {
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = if (isStartDate) startDate else endDate
@@ -129,7 +133,7 @@ class StatsActivity : AppCompatActivity() {
 
     private fun loadCharts() {
         Log.d(tag, "loadCharts: Loading all charts for period $startDate - $endDate")
-        
+
         try {
             val userId = DataStore.currentUserId
             if (userId == -1) {
@@ -148,7 +152,7 @@ class StatsActivity : AppCompatActivity() {
 
     private fun setupIncomeExpenseChart(userId: Int, start: Long, end: Long) {
         Log.d(tag, "setupIncomeExpenseChart: Building income vs expense chart")
-        
+
         try {
             val income = DataStore.getIncomeTotal(userId, start, end)
             val expenses = DataStore.getExpenseTotal(userId, start, end)
@@ -184,7 +188,7 @@ class StatsActivity : AppCompatActivity() {
 
     private fun setupCategoryChart(userId: Int, start: Long, end: Long) {
         Log.d(tag, "setupCategoryChart: Building category spending chart")
-        
+
         try {
             val entries = ArrayList<PieEntry>()
             val colors = ArrayList<Int>()
@@ -222,7 +226,7 @@ class StatsActivity : AppCompatActivity() {
             binding.chartCategory.setEntryLabelColor(Color.WHITE)
             binding.chartCategory.animateXY(1000, 1000)
             binding.chartCategory.invalidate()
-            
+
             Log.d(tag, "Category chart loaded successfully with ${entries.size} categories")
         } catch (e: Exception) {
             Log.e(tag, "Error setting up category chart: ${e.message}", e)
@@ -231,7 +235,7 @@ class StatsActivity : AppCompatActivity() {
 
     private fun setupTrendChart(userId: Int) {
         Log.d(tag, "setupTrendChart: Building 6-month trend chart")
-        
+
         try {
             val entries = ArrayList<Entry>()
             val labels = ArrayList<String>()
@@ -271,10 +275,71 @@ class StatsActivity : AppCompatActivity() {
             binding.chartTrend.legend.textColor = Color.WHITE
             binding.chartTrend.animateX(1000)
             binding.chartTrend.invalidate()
-            
+
             Log.d(tag, "Trend chart loaded successfully")
         } catch (e: Exception) {
             Log.e(tag, "Error setting up trend chart: ${e.message}", e)
+        }
+    }
+
+    /**
+     * Custom Feature 2: Export transaction data to CSV
+     * Generates a report for the selected date range and shares via Android share sheet
+     */
+    private fun exportCsv() {
+        try {
+            val userId = DataStore.currentUserId
+            val transactions = DataStore.getTransactionsForPeriod(userId, startDate, endDate)
+            
+            if (transactions.isEmpty()) {
+                Toast.makeText(this, "No transactions to export", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val username = DataStore.getCurrentUserName().replace(" ", "_")
+            val datestamp = SimpleDateFormat("dd_MM_yyyy", Locale.getDefault()).format(Date())
+            val fileName = "CodeCash_Report_${username}_${datestamp}.csv"
+
+            // Create Documents/CodeCash directory
+            val dir = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "CodeCash")
+            if (!dir.exists()) dir.mkdirs()
+            val file = File(dir, fileName)
+
+            // Write CSV
+            file.bufferedWriter().use { out ->
+                // Header
+                out.write("ID,Date,Description,Category,Amount,Type,Photo\n")
+
+                // Data rows
+                transactions.forEach { txId ->
+                    val i = DataStore.transactionIds.indexOf(txId)
+                    if (i != -1) {
+                        val date = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                            .format(Date(DataStore.transactionDates[i]))
+                        val cat = DataStore.getCategoryName(DataStore.transactionCategoryIds[i])
+                        val type = if (DataStore.transactionIsIncome[i]) "Income" else "Expense"
+                        val photoFileName = DataStore.transactionPhotoPaths[i]?.let { File(it).name } ?: ""
+
+                        out.write("$txId,$date,\"${DataStore.transactionDescriptions[i]}\",$cat,${DataStore.transactionAmounts[i]},$type,$photoFileName\n")
+                    }
+                }
+            }
+
+            // Share via Android share sheet
+            val uri = FileProvider.getUriForFile(this, "${packageName}.fileprovider", file)
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/csv"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_SUBJECT, "CodeCash Financial Report — $datestamp")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(intent, "Share CSV Report"))
+            Toast.makeText(this, "Report exported: $fileName", Toast.LENGTH_SHORT).show()
+
+            Log.d(tag, "CSV export successful: $fileName")
+        } catch (e: Exception) {
+            Log.e(tag, "Error exporting CSV: ${e.message}", e)
+            Toast.makeText(this, "Error exporting report: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 }

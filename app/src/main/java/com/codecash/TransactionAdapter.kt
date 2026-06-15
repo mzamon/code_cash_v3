@@ -53,9 +53,13 @@ class TransactionAdapter(
             val colorRes = if (isIncome) "#22c55e" else "#ef4444"
             holder.binding.tvAmount.setTextColor(Color.parseColor(colorRes))
             
-            // Set Category Icon Background Color
-            val categoryColor = DataStore.getCategoryColor(categoryId)
-            holder.binding.ivCategoryIcon.background.setColorFilter(Color.parseColor(categoryColor), PorterDuff.Mode.SRC_IN)
+            // Set Category Icon Background Color - safe: use setBackgroundColor directly
+            val categoryColor = try {
+                Color.parseColor(DataStore.getCategoryColor(categoryId))
+            } catch (e: Exception) {
+                Color.parseColor("#2dd4bf") // fallback to teal
+            }
+            holder.binding.ivCategoryIcon.setBackgroundColor(categoryColor)
 
             // Show Photo Indicator if photo exists
             holder.binding.ivPhotoIndicator.visibility = if (photoPath != null) View.VISIBLE else View.GONE

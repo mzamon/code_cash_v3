@@ -1,0 +1,68 @@
+name: Android Build & Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Make Gradle executable
+      run: chmod +x gradlew
+
+    - name: Run unit tests
+      run: ./gradlew test --info
+
+    - name: Build debug APK
+      run: ./gradlew assembleDebug
+
+    - name: Upload debug APK artifact
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: app-debug-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 30
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: app/build/reports/tests/
+        retention-days: 30
+
+    - name: Build release APK
+      run: ./gradlew assembleRelease
+      continue-on-error: true
+
+    - name: Upload release APK artifact
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: app-release-apk
+        path: app/build/outputs/apk/release/app-release.apk
+        retention-days: 90
+
+    - name: Report build status
+      if: failure()
+      run: echo "Build failed - check logs above for details"
+
+    - name: Report build success
+      if: success()
+      run: echo "Build successful - APKs and test results uploaded"

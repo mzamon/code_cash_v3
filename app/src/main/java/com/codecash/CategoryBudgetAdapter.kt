@@ -44,7 +44,9 @@ class CategoryBudgetAdapter(
             val maxBudget = goal?.maxAmount ?: DataStore.categoryMaxBudgets[index]
 
             holder.binding.tvCategoryName.text = catName
-            holder.binding.vColor.background.setColorFilter(Color.parseColor(catColor), PorterDuff.Mode.SRC_IN)
+            holder.binding.vColor.setBackgroundColor(
+                try { Color.parseColor(catColor) } catch (e: Exception) { Color.parseColor("#2dd4bf") }
+            )
             
             // Use tvBudgetRange to show Spent vs Goal
             holder.binding.tvBudgetRange.text = "Spent: R${String.format("%.2f", spent)} / Goal: R${String.format("%.2f", maxBudget)}"

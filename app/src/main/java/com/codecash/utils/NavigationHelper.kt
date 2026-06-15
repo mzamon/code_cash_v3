@@ -2,54 +2,39 @@ package com.codecash.utils
 
 import android.app.Activity
 import android.content.Intent
-import com.codecash.*
+import com.codecash.AchievementsActivity
+import com.codecash.BudgetGoalsActivity
+import com.codecash.DashboardActivity
+import com.codecash.R
+import com.codecash.SettingsActivity
+import com.codecash.StatsActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 object NavigationHelper {
 
-    fun setupBottomNavigation(activity: Activity, bottomNav: BottomNavigationView, currentItemId: Int) {
-        bottomNav.selectedItemId = currentItemId
-        
+    fun setupBottomNavigation(
+        activity: Activity,
+        bottomNav: BottomNavigationView,
+        activeItemId: Int
+    ) {
+        bottomNav.selectedItemId = activeItemId
+
         bottomNav.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_home -> {
-                    if (currentItemId != R.id.nav_home) {
-                        activity.startActivity(Intent(activity, DashboardActivity::class.java))
-                        activity.finish()
-                    }
-                    true
-                }
-                R.id.nav_stats -> {
-                    if (currentItemId != R.id.nav_stats) {
-                        activity.startActivity(Intent(activity, StatsActivity::class.java))
-                        activity.finish()
-                    }
-                    true
-                }
-                R.id.nav_budget -> {
-                    if (currentItemId != R.id.nav_budget) {
-                        activity.startActivity(Intent(activity, BudgetGoalsActivity::class.java))
-                        activity.finish()
-                    }
-                    true
-                }
-                R.id.nav_forecast -> {
-                    if (currentItemId != R.id.nav_forecast) {
-                        // Forecast redirects to Stats (TODO: implement forecast features in future)
-                        activity.startActivity(Intent(activity, StatsActivity::class.java))
-                        activity.finish()
-                    }
-                    true
-                }
-                R.id.nav_settings -> {
-                    if (currentItemId != R.id.nav_settings) {
-                        activity.startActivity(Intent(activity, SettingsActivity::class.java))
-                        activity.finish()
-                    }
-                    true
-                }
-                else -> false
+            if (item.itemId == activeItemId) return@setOnItemSelectedListener true
+
+            val target = when (item.itemId) {
+                R.id.nav_home         -> DashboardActivity::class.java
+                R.id.nav_stats        -> StatsActivity::class.java
+                R.id.nav_budget       -> BudgetGoalsActivity::class.java
+                R.id.nav_achievements -> AchievementsActivity::class.java
+                R.id.nav_settings     -> SettingsActivity::class.java
+                else                  -> return@setOnItemSelectedListener false
             }
+
+            if (activity.javaClass == target) return@setOnItemSelectedListener true
+            activity.startActivity(Intent(activity, target))
+            activity.finish()
+            true
         }
     }
 }

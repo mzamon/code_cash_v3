@@ -22,6 +22,7 @@ object DataStore {
     // Parallel arrays for Users
     val userIds = ArrayList<Int>()
     val userNames = ArrayList<String>()
+    val userUsernames = ArrayList<String>()
     val userEmails = ArrayList<String>()
     val userPasswords = ArrayList<String>()
 
@@ -66,14 +67,14 @@ object DataStore {
     private var nextTransactionId = 1
     private var nextBudgetGoalId = 1
     private var nextAchievementId = 1
-    
+
     init {
         initializeTestData()
     }
 
     private fun initializeTestData() {
         logD("Initializing test data...")
-        
+
         // 1. Seed Users (Group members + Admin)
         // Admin account for testing: admin@codecash.com / Password123
         addUser("Admin", "admin@codecash.com", "Password123")
@@ -92,7 +93,7 @@ object DataStore {
 
         // 3. Seed Transactions (Removed - new users start with 0% progress)
         // Users can add their own transactions when they start using the app
-        
+
         logD("Test data initialized.")
     }
 
@@ -100,8 +101,10 @@ object DataStore {
 
     fun addUser(name: String, email: String, password: String): Int {
         val id = nextUserId++
+        val username = email.substringBefore("@")
         userIds.add(id)
         userNames.add(name)
+        userUsernames.add(username)
         userEmails.add(email)
         userPasswords.add(password)
         return id
@@ -115,7 +118,7 @@ object DataStore {
         // In a real implementation with parallel arrays, we'd need to sort all arrays by email.
         // For the sake of the rubric, we'll demonstrate a sorted search logic.
         val indices = userEmails.indices.sortedBy { userEmails[it].lowercase() }
-        
+
         var low = 0
         var high = indices.size - 1
         val target = email.lowercase()
@@ -123,7 +126,7 @@ object DataStore {
         while (low <= high) {
             val mid = (low + high) / 2
             val midEmail = userEmails[indices[mid]].lowercase()
-            
+
             when {
                 midEmail == target -> return userIds[indices[mid]]
                 midEmail < target -> low = mid + 1
@@ -207,7 +210,7 @@ object DataStore {
                 result.add(transactionIds[i])
             }
         }
-        
+
         // Requirement: Bubble Sort for sorting format
         bubbleSortByDate(result)
         return result
@@ -248,7 +251,10 @@ object DataStore {
             for (j in 0 until n - i - 1) {
                 val idx1 = transactionIds.indexOf(transactionIdList[j])
                 val idx2 = transactionIds.indexOf(transactionIdList[j + 1])
-                
+
+                // Guard: skip if either ID is stale / not found
+                if (idx1 == -1 || idx2 == -1) continue
+
                 if (transactionDates[idx1] < transactionDates[idx2]) {
                     // Swap
                     val temp = transactionIdList[j]
@@ -345,10 +351,10 @@ object DataStore {
             val parts = currentMonthYear.split("-")
             val month = parts[0].toInt()
             val year = parts[1].toInt()
-            
+
             val lastMonth = if (month == 1) 12 else month - 1
             val lastYear = if (month == 1) year - 1 else year
-            
+
             String.format("%02d-%d", lastMonth, lastYear)
         } catch (e: Exception) {
             logE("Error calculating last month year: $currentMonthYear", e)
@@ -432,28 +438,22 @@ object DataStore {
         
         logD("Checking achievements for user $userId in period $currentMonth")
 
-        // Achievement 1: Budget Master - Stay within all budget goals
-        var allGoalsMet = true
-        for (i in budgetGoalUserIds.indices) {
-            if (budgetGoalUserIds[i] == userId && budgetGoalMonthYears[i] == currentMonth) {
-                val categoryId = budgetGoalCategoryIds[i]
-                val categorySpent = getCategoryTotal(userId, categoryId, start, end)
-                val maxBudget = budgetGoalMaxAmounts[i]
-                
-                if (categorySpent > maxBudget) {
-                    allGoalsMet = false
-                    break
-                }
-            }
+        // Achievement 1: Budget Master - Stay within all budget goals (ONLY if user has set at least one goal)
+        val userGoalIndices = budgetGoalUserIds.indices.filter {
+            budgetGoalUserIds[it] == userId && budgetGoalMonthYears[it] == currentMonth
         }
-        
-        if (allGoalsMet && !hasAchievement(userId, "Budget Master")) {
-            addAchievement(
-                userId,
-                "Budget Master",
-                "Stayed within all budget goals for the month!",
-                "budget"
-            )
+        if (userGoalIndices.isNotEmpty()) {
+            val allGoalsMet = userGoalIndices.all { i ->
+                getCategoryTotal(userId, budgetGoalCategoryIds[i], start, end) <= budgetGoalMaxAmounts[i]
+            }
+            if (allGoalsMet && !hasAchievement(userId, "Budget Master")) {
+                addAchievement(
+                    userId,
+                    "Budget Master",
+                    "Stayed within all budget goals for the month!",
+                    "budget"
+                )
+            }
         }
 
         // Achievement 2: Consistent Logger - 10+ transactions in a month
@@ -498,10 +498,10 @@ object DataStore {
     fun getBudgetProgress(userId: Int, categoryId: Int): Pair<Double, Double> {
         val currentMonth = getCurrentMonthYear()
         val (start, end) = getMonthStartEnd(currentMonth)
-        
+
         val budgetGoal = getBudgetGoal(userId, categoryId, currentMonth)
         val spent = getCategoryTotal(userId, categoryId, start, end)
-        
+
         return if (budgetGoal != null) {
             Pair(spent, budgetGoal.maxAmount)
         } else {

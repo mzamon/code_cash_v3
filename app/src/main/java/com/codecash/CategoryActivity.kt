@@ -50,7 +50,8 @@ class CategoryActivity : AppCompatActivity() {
         }
 
         // Setup Bottom Navigation
-        NavigationHelper.setupBottomNavigation(this, binding.bottomNav, R.id.nav_settings)
+        // Hide bottom nav - CategoryActivity is not a nav destination, it's opened from Dashboard
+        binding.bottomNav.visibility = View.GONE
     }
 
     private fun loadCategories() {

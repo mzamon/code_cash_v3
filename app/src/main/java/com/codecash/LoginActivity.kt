@@ -10,13 +10,13 @@ import com.codecash.databinding.ActivityLoginBinding
 
 /**
  * LoginActivity - Handles user authentication for CodeCash app.
- * 
+ *
  * Features:
  * - Secure login with email and password validation
  * - Error handling for invalid credentials
  * - Navigation to signup for new users
  * - Comprehensive logging for debugging
- * 
+ *
  * References:
  * - Android security best practices: https://developer.android.com/topic/security
  * - Input validation patterns in Kotlin
@@ -25,7 +25,7 @@ class LoginActivity : AppCompatActivity() {
     
     private lateinit var binding: ActivityLoginBinding
     private val tag = "LoginActivity"
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(tag, "onCreate: Initializing LoginActivity")
@@ -43,7 +43,7 @@ class LoginActivity : AppCompatActivity() {
     
     private fun setupUI() {
         Log.d(tag, "setupUI: Setting up login UI elements")
-        
+
         binding.btnLogin.setOnClickListener {
             Log.d(tag, "Login button clicked")
             attemptLogin()
@@ -53,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
             Log.d(tag, "Signup link clicked - navigating to SignupActivity")
             startActivity(Intent(this, SignupActivity::class.java))
         }
-        
+
         binding.tvForgotPassword.setOnClickListener {
             Log.d(tag, "Forgot password clicked")
             Toast.makeText(this, "Contact support to reset password", Toast.LENGTH_SHORT).show()
@@ -70,7 +70,7 @@ class LoginActivity : AppCompatActivity() {
         try {
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
-            
+
             // Validate email input
             if (email.isEmpty()) {
                 Log.w(tag, "Validation failed: email is empty")
@@ -78,7 +78,7 @@ class LoginActivity : AppCompatActivity() {
                 return
             }
             binding.tilEmail.error = null
-            
+
             // Validate password input
             if (password.isEmpty()) {
                 Log.w(tag, "Validation failed: password is empty")
@@ -86,16 +86,16 @@ class LoginActivity : AppCompatActivity() {
                 return
             }
             binding.tilPassword.error = null
-            
+
             Log.d(tag, "Validation passed - attempting authentication for: $email")
-            
+
             // Attempt login
             val userId = DataStore.validateLogin(email, password)
-            
+
             if (userId != -1) {
                 Log.i(tag, "Login successful for userId: $userId")
                 Toast.makeText(this, "Welcome back!", Toast.LENGTH_SHORT).show()
-                
+
                 // Navigate to dashboard
                 startActivity(Intent(this, DashboardActivity::class.java))
                 finish()

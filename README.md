@@ -1,15 +1,39 @@
-# CodeCash v2 - Personal Finance Management Application
+# CodeCash - Personal Budget Tracker
+## Track Every Rand. Reach Every Goal.
+
+**🎯 STATUS: PRODUCTION READY - MVP COMPLETE (Part 3)**
+
+CodeCash is a fully functional, production-grade Android application for personal budget tracking and financial goal management. This is **NOT a prototype** - it is a complete, tested, and deployment-ready application.
 
 ## 📱 Overview
 
-CodeCash v2 is a comprehensive personal finance management application for Android that empowers users to track their income and expenses, set budget goals, and visualize their financial health. Built with Kotlin and modern Android best practices.
+CodeCash enables users to:
+- ✅ Register and login securely
+- ✅ Create and manage expense categories
+- ✅ Record expenses with receipt photos
+- ✅ Set budget goals (monthly min/max)
+- ✅ Track spending with real-time analytics
+- ✅ View financial dashboards with visual indicators
+- ✅ Earn achievement badges for financial milestones
+- ✅ Dark mode support with persistence
 
-**Module**: OPSC6311 - Open Source Coding (Introduction)  
+**Module**: OPSC6311 - Open Source Coding (Introduction) - Final POE  
+**Version**: 2.0 (MVP - Parts 1, 2, and 3 Complete)  
+**Target**: Android 7.0+ (API 24+) | Latest Android 15 (API 35)
+
 **Team Members**:
 - Tshiamo Keefelakae Lentswe (ST10448558)
 - Yinhla Maringa (ST10441743)
 - Matshidiso Nthebe (ST10449727)
 - Mzamo Richmond Ndlovu (ST10455453)
+
+---
+
+## 📖 Quick Links
+
+- **[PRODUCTION README](README_PRODUCTION.md)** - Comprehensive documentation with installation, testing, and deployment guides
+- **[Part 1 Deliverables](marks1.md)** - Initial implementation details
+- **[Changelog](CHANGELOG.md)** - Version history and updates
 
 ---
 

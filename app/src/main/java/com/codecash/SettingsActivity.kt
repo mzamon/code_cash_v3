@@ -81,13 +81,13 @@ class SettingsActivity : AppCompatActivity() {
                         DataStore.userEmails.removeAt(idx)
                         DataStore.userPasswords.removeAt(idx)
                     }
-                    
+
                     // Remove associated transactions
                     val transToRemove = DataStore.getTransactionsForUser(userId)
                     for (transId in transToRemove) {
                         DataStore.deleteTransaction(transId)
                     }
-                    
+
                     DataStore.currentUserId = -1
                     Toast.makeText(this, "Account deleted", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, LoginActivity::class.java))

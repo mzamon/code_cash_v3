@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- CodeCash Brand Colors from Logo -->
+    <!-- CodeCash Brand Colors -->
     <color name="navy_dark">#0f172a</color>
     <color name="navy_primary">#1e293b</color>
     <color name="navy_light">#334155</color>
+    <color name="navy">#1e293b</color> <!-- Added for Chatbot compatibility -->
     <color name="teal_primary">#2dd4bf</color>
     <color name="teal_light">#5eead4</color>
     <color name="teal_dark">#0d9488</color>

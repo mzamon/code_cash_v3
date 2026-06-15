@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -38,6 +39,7 @@ android {
     
     buildFeatures {
         viewBinding = true
+        dataBinding = true
     }
 }
 
@@ -50,10 +52,17 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.9.3")
     implementation("androidx.fragment:fragment-ktx:1.8.5")
     
-    // Chart library for stats
+    // Room
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    
+    // Biometric
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
+    
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     
-    // Testing dependencies
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.test:core:1.5.0")
     testImplementation("org.mockito:mockito-core:5.3.1")

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<paths>
-    <external-files-path
-        name="photos"
-        path="Pictures/CodeCash" />
-    <cache-path
-        name="cache_photos"
-        path="." />
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Matches: getExternalFilesDir(DIRECTORY_PICTURES)/CodeCash — for receipt photos -->
+    <external-files-path name="codecash_images" path="Pictures/CodeCash/"/>
+    <!-- Matches: getExternalFilesDir(DIRECTORY_DOCUMENTS)/CodeCash — for CSV exports -->
+    <external-files-path name="codecash_docs" path="Documents/CodeCash/"/>
+    <!-- Internal storage fallback -->
+    <files-path name="codecash_internal" path="."/>
 </paths>
