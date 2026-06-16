@@ -2,17 +2,44 @@
 
 ## Track Every Rand. Reach Every Goal.
 
+## GitHub Repository
+
+Repository:
+https://github.com/YOUR_USERNAME/code_cash_v3
+
+##YouTube
+
+Video Link: 
+
 **🎯 STATUS: PRODUCTION READY - MVP COMPLETE (Part 3)**
 
 > This README consolidates the content of two previously separated README files into a single comprehensive document. No information has intentionally been omitted. Where the original files overlapped, the information has been merged into a logical structure while preserving all unique content.
 
 ---
 
+## Design Decisions
 
+- Material Design 3 was chosen for a modern Android UI.
+- Bottom Navigation was used for quick access to core features.
+- Room Database was selected for reliable local data storage.
+- MPAndroidChart was used to provide visual financial analytics.
+- Gamification was implemented to encourage consistent budgeting habits.
+- Dark Mode was included to improve accessibility and user experience.
 
+## GitHub Usage
+
+GitHub was used throughout development for:
+
+- Version control
+- Feature tracking
+- Commit history management
+- Backup of source code
+- Collaboration between team members
+
+Each feature was committed incrementally to maintain a clear development history.
 ## 📖 Quick Links
 
-- **[PRODUCTION README](README_PRODUCTION.md)** - Comprehensive documentation with installation, testing, and deployment guides
+- **[PRODUCTION README](README.md)** - Comprehensive documentation with installation, testing, and deployment guides
 - **[Part 1 Deliverables](marks1.md)** - Initial implementation details
 - **[Changelog](CHANGELOG.md)** - Version history and updates
 
@@ -162,6 +189,22 @@ com.codecash
 | Updated README with features | ✅ | Comprehensive documentation |
 | Code comments & logging | ✅ | Full coverage with Log.d/e |
 | GitHub setup | ✅ | Clean commits, workflow config |
+
+## Screeenshots
+
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/d6551ad1-be2b-467a-831a-a48de647f6a4" />
+
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/53bafc2c-4dc3-494e-8ff8-aef56351c974" />
+
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/1a28194b-cc37-4d99-aebb-759db2110565" />
+
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/be550be4-8c9b-42f0-9231-f3bc578ec3f2" />
+
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/4f4ebfd5-be1c-4627-ab67-171ee120e7dd" />
+
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/5a97dc04-9399-4ba3-913e-e3fb0ba64816" />
+
+<img width="720" height="1600" alt="image" src="https://github.com/user-attachments/assets/a54359c1-e9a7-46ea-94e1-da75d975c61f" />
 
 ---
 
