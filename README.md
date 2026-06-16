@@ -9,7 +9,7 @@ https://github.com/YOUR_USERNAME/code_cash_v3
 
 ##YouTube
 
-Video Link: 
+Video Link: https://youtu.be/NoOkGn0Yl5k?si=mSwIj5a3RupldkWj
 
 **🎯 STATUS: PRODUCTION READY - MVP COMPLETE (Part 3)**
 
